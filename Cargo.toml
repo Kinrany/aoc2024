@@ -1,2 +1,7 @@
 [workspace]
 members = ["*/rust"]
+resolver = "2"
+
+[workspace.dependencies]
+anyhow = "1.0.93"
+insta = "1.41.1"

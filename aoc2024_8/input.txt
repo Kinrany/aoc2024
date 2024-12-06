@@ -1,0 +1,1 @@
+../aoc2024_7/input.txt

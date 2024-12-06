@@ -20,31 +20,30 @@ fn input_has_word(input: &[Vec<char>], word: &str, x: i32, y: i32, dx: i32, dy: 
 fn solution(input: Vec<Vec<char>>, word: &str) -> usize {
     let x_len = input.len() as i32;
     let y_len = input[0].len() as i32;
-    let i_max = word.len() as i32 - 1;
 
-    let directions = [
-        (-1, -1),
-        (-1, 0),
-        (-1, 1),
-        (0, -1),
-        (0, 1),
-        (1, -1),
-        (1, 0),
-        (1, 1),
-    ];
-
-    itertools::iproduct!((0..x_len), (0..y_len), directions)
-        .filter(|&(x, y, (dx, dy))| {
-            (0..x_len).contains(&(x + dx * i_max))
-                && (0..y_len).contains(&(y + dy * i_max))
-                && input_has_word(&input, word, x, y, dx, dy)
+    itertools::iproduct!((0..x_len), (0..y_len), [true, false], [true, false])
+        .filter(|&(x, y, dir1, dir2)| {
+            let x_end = x + word.len() as i32 - 1;
+            let y_end = y + word.len() as i32 - 1;
+            (0..x_len).contains(&x_end)
+                && (0..y_len).contains(&y_end)
+                && if dir1 {
+                    input_has_word(&input, word, x, y, 1, 1)
+                } else {
+                    input_has_word(&input, word, x_end, y_end, -1, -1)
+                }
+                && if dir2 {
+                    input_has_word(&input, word, x, y_end, 1, -1)
+                } else {
+                    input_has_word(&input, word, x_end, y, -1, 1)
+                }
         })
         .count()
 }
 
 fn main() -> anyhow::Result<()> {
     let input = input(BufReader::new(std::io::stdin()))?;
-    let answer = solution(input, "XMAS");
+    let answer = solution(input, "MAS");
     println!("{answer}");
     Ok(())
 }
@@ -69,5 +68,5 @@ fn solve_example() {
         vec!['M', 'A', 'M', 'M', 'M', 'X', 'M', 'M', 'M', 'M'],
         vec!['M', 'X', 'M', 'X', 'A', 'X', 'M', 'A', 'S', 'X'],
     ];
-    assert_eq!(solution(input, "XMAS"), 18);
+    assert_eq!(solution(input, "MAS"), 9);
 }

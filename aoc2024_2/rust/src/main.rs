@@ -5,7 +5,9 @@ use std::{
 
 use anyhow::Context;
 
-fn input(input: impl BufRead) -> anyhow::Result<Vec<(i32, i32)>> {
+type Input = Vec<(i32, i32)>;
+
+fn input(input: impl BufRead) -> anyhow::Result<Input> {
     input
         .lines()
         .map(|result| {
@@ -16,7 +18,7 @@ fn input(input: impl BufRead) -> anyhow::Result<Vec<(i32, i32)>> {
         .collect()
 }
 
-fn solution(input: Vec<(i32, i32)>) -> i32 {
+fn solution(input: Input) -> i32 {
     let (list1, list2): (Vec<_>, Vec<_>) = input.into_iter().unzip();
     let counts = list2.into_iter().fold(HashMap::new(), |mut acc, x| {
         *acc.entry(x).or_insert(0) += 1;
@@ -43,6 +45,6 @@ fn parse_input() {
 
 #[test]
 fn solve_example() {
-    let input = vec![(3, 4), (4, 3), (2, 5), (1, 3), (3, 9), (3, 3)];
+    let input: Input = vec![(3, 4), (4, 3), (2, 5), (1, 3), (3, 9), (3, 3)];
     assert_eq!(solution(input), 31);
 }

@@ -3,7 +3,9 @@ use std::io::{BufRead, BufReader};
 use anyhow::Context;
 use itertools::Itertools;
 
-fn input(input: impl BufRead) -> anyhow::Result<Vec<Vec<i32>>> {
+type Input = Vec<Vec<i32>>;
+
+fn input(input: impl BufRead) -> anyhow::Result<Input> {
     input
         .lines()
         .map(|result| {
@@ -26,7 +28,7 @@ fn safe(report: &[i32]) -> bool {
     gradual && (increasing || decreasing)
 }
 
-fn solution(input: Vec<Vec<i32>>) -> usize {
+fn solution(input: Input) -> usize {
     input.into_iter().filter(|report| safe(report)).count()
 }
 
@@ -45,7 +47,7 @@ fn parse_input() {
 
 #[test]
 fn solve_example() {
-    let input = vec![
+    let input: Input = vec![
         vec![7, 6, 4, 2, 1],
         vec![1, 2, 7, 8, 9],
         vec![9, 7, 6, 2, 1],

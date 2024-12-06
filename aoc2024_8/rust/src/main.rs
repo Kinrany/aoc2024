@@ -1,7 +1,10 @@
 use std::io::{BufRead, BufReader};
 
 use itertools::Itertools;
-fn input(input: impl BufRead) -> anyhow::Result<Vec<Vec<char>>> {
+
+type Input = Vec<Vec<char>>;
+
+fn input(input: impl BufRead) -> anyhow::Result<Input> {
     input
         .lines()
         .map_ok(|l| l.chars().collect_vec())
@@ -17,7 +20,7 @@ fn input_has_word(input: &[Vec<char>], word: &str, x: i32, y: i32, dx: i32, dy: 
     })
 }
 
-fn solution(input: Vec<Vec<char>>, word: &str) -> usize {
+fn solution(input: Input, word: &str) -> usize {
     let x_len = input.len() as i32;
     let y_len = input[0].len() as i32;
 
@@ -51,12 +54,12 @@ fn main() -> anyhow::Result<()> {
 #[test]
 fn parse_example() {
     let bytes = include_bytes!("../../example.txt");
-    insta::assert_debug_snapshot!(input(bytes.as_slice()));
+    insta::assert_debug_snapshot!(input(bytes.as_slice()).unwrap());
 }
 
 #[test]
 fn solve_example() {
-    let input = vec![
+    let input: Input = vec![
         vec!['M', 'M', 'M', 'S', 'X', 'X', 'M', 'A', 'S', 'M'],
         vec!['M', 'S', 'A', 'M', 'X', 'M', 'S', 'M', 'S', 'A'],
         vec!['A', 'M', 'X', 'S', 'X', 'M', 'A', 'A', 'M', 'M'],

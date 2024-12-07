@@ -1,0 +1,8 @@
+[package]
+name = "aoc2024_10_rust"
+edition = "2021"
+
+[dependencies]
+anyhow.workspace = true
+insta.workspace = true
+itertools.workspace = true

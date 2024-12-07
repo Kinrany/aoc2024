@@ -1,6 +1,6 @@
 ---
 source: aoc2024_11/rust/src/main.rs
-assertion_line: 287
+assertion_line: 295
 expression: board
 snapshot_kind: text
 ---

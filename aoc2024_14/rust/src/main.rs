@@ -22,7 +22,7 @@ fn input(input: impl BufRead) -> anyhow::Result<Input> {
 
 fn solution(input: Input) -> u64 {
     // Individual entries are all pretty short, shorter than 10 items,
-    // so we can simply try all ~2^10 options for each one.
+    // so we can simply try all <4^10 options for each one.
     input
         .into_iter()
         .filter(|(test_value, values)| {
@@ -30,20 +30,31 @@ fn solution(input: Input) -> u64 {
             let first = values[0];
             let rest = &values[1..];
 
-            // 0 if multiplication, 1 if addition
-            let mut bitmask = 1 << (rest.len() + 1);
+            // two bits per operation:
+            // 0b00 for multiplication,
+            // 0b01 for addition,
+            // 0b10 for concatenation,
+            // 0b11 is skipped
+            let mut bitmask = 1 << (rest.len() * 2 + 1);
             while bitmask > 0 {
                 bitmask -= 1;
-                let bitvalue = |idx| (bitmask >> idx) & 1;
+                let bitvalue = |idx| (bitmask >> (idx * 2)) & 0b11;
+
+                // skip if any bitvalues should be skipped
+                if (0..rest.len()).any(|idx| bitvalue(idx) == 0b11) {
+                    continue;
+                }
 
                 let value = rest.iter().enumerate().fold(first, |acc, (idx, x)| {
                     let bitvalue = bitvalue(idx);
-                    if bitvalue == 0 {
+                    if bitvalue == 0b00 {
                         acc * x
-                    } else if bitvalue == 1 {
+                    } else if bitvalue == 0b01 {
                         acc + x
+                    } else if bitvalue == 0b10 {
+                        acc * 10u64.pow(x.checked_ilog10().unwrap() + 1) + x
                     } else {
-                        panic!("unexpected bitvalue: {bitvalue}");
+                        panic!("invalid bitvalue: {bitvalue}");
                     }
                 });
 
@@ -84,5 +95,5 @@ fn solve_example() {
         (21037, vec![9, 7, 18, 13]),
         (292, vec![11, 6, 16, 20]),
     ];
-    assert_eq!(solution(input), 3749);
+    assert_eq!(solution(input), 11387);
 }

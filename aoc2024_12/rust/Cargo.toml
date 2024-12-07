@@ -1,5 +1,5 @@
 [package]
-name = "aoc2024_11_rust"
+name = "aoc2024_12_rust"
 edition = "2021"
 
 [dependencies]

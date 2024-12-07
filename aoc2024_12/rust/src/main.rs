@@ -7,7 +7,7 @@ use std::{
 };
 
 use indexmap::IndexSet;
-use itertools::Itertools;
+use itertools::iproduct;
 
 fn cell_iter(input: &str) -> impl Iterator<Item = (i32, i32, char)> + '_ {
     input.lines().enumerate().flat_map(|(x, line)| {
@@ -80,7 +80,7 @@ impl Display for Direction {
     }
 }
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 struct Map {
     size: (i32, i32),
     obstacles: BTreeSet<(i32, i32)>,
@@ -160,13 +160,13 @@ impl Guard {
     }
 }
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 struct Board {
     map: Map,
     guard: Guard,
 }
 impl Board {
-    /// Returns all positions, and `true` if the guard leaves the area.
+    /// Returns all positions, and `true` if the guard gets stuck in a loop.
     pub fn simulate(&self) -> (IndexSet<Guard>, bool) {
         let mut guard = self.guard;
 
@@ -175,11 +175,11 @@ impl Board {
 
         loop {
             let Some(new_guard) = self.map.next(guard) else {
-                return (history, true);
+                return (history, false);
             };
             guard = new_guard;
             if history.contains(&guard) {
-                return (history, false);
+                return (history, true);
             }
             history.insert(guard);
         }
@@ -223,10 +223,16 @@ fn solution(input: &str) -> usize {
     // We are going to straight up simulate the guard walking.
     let Ok(board) = Board::from_str(input);
 
-    let (history, _) = board.simulate();
-
-    // Count unique positions
-    history.into_iter().map(|g| g.position).unique().count()
+    // This is actually slow AF, takes about 2 minutes to run all the simulations.
+    iproduct!(0..board.map.size.0, 0..board.map.size.1)
+        .filter(|(x, y)| !board.map.is_obstacle((*x, *y)) && board.guard.position != (*x, *y))
+        .filter(|(x, y)| {
+            let mut board = board.clone();
+            board.map.obstacles.insert((*x, *y));
+            let (_, looped) = board.simulate();
+            looped
+        })
+        .count()
 }
 
 fn main() -> anyhow::Result<()> {
@@ -324,5 +330,5 @@ fn solve_example() {
                  ........#.
                  #.........
                  ......#...";
-    assert_eq!(solution(input), 41);
+    assert_eq!(solution(input), 6);
 }
